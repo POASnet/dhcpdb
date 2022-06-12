@@ -1,8 +1,8 @@
-import sqlite3
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
-db = sqlite3.connect('dhcp.db')
-db.row_factory = sqlite3.Row
-cur = db.cursor()
+db = psycopg2.connect()
+cur = db.cursor(cursor_factory=RealDictCursor)
 
 cur.execute("""
     CREATE TABLE IF NOT EXISTS leases (
@@ -17,7 +17,7 @@ cur.execute("""
 def insert_new_lease(identity, time):
     query_insert_new = """
         INSERT INTO leases(first_seen, last_seen, ip, mac, sw, port)
-        VALUES (:first_seen, :last_seen, :ip, :mac, :sw, :port)
+        VALUES (%(first_seen)s, %(last_seen)s, %(ip)s, %(mac)s, %(sw)s, %(port)s)
     """
     cur.execute(query_insert_new, identity | {"first_seen": time, "last_seen": time})
 
@@ -25,11 +25,11 @@ def insert_new_lease(identity, time):
 def update_lease(identity, first_seen, time):
     query_update = """
     UPDATE leases
-    SET last_seen = :time
+    SET last_seen = %(time)s
     WHERE 
-        ip = :ip AND mac = :mac AND
-        port = :port AND sw = :sw AND
-        first_seen = :first_seen
+        ip = %(ip)s AND mac = %(mac)s AND
+        port = %(port)s AND sw = %(sw)s AND
+        first_seen = %(first_seen)s
     """
     cur.execute(query_update, identity | { "first_seen": first_seen, "time": time })
 
@@ -37,7 +37,7 @@ def update_lease(identity, first_seen, time):
 def find_last(ip):
     query_find_last = """
         SELECT * FROM leases
-        WHERE ip=:ip
+        WHERE ip=%(ip)s
         ORDER BY last_seen DESC
         LIMIT 1
     """
