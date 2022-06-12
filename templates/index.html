@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script type="application/javascript">
+                function submit() {
+                    const ip = document.getElementById("ipfield").value;
+                    window.location.href = "/" + ip;
+                }
+        </script>
+    </head>
+    <body>
+        IP address: <input id="ipfield" value="{{ ip if ip else '' }}"> <button type="button" onclick="submit()">Lookup</button>
+    </body>
+</html>
