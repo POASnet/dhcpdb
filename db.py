@@ -66,14 +66,3 @@ def register_lease(ip, mac, sw, port, time):
     db.commit()
 
 
-test = {'ip': '11.22.33.44', 'mac': '00:16:01:02:03:04', 'sw': 'test-sw1', 'port': 'gei-0/1/1/13', 'time': 1654727124}
-register_lease(**test)
-test['time'] += 1
-register_lease(**test)
-test['time'] += 1
-test['port'] = 'gei-0/1/1/14'
-register_lease(**test)
-test['time'] += 1
-register_lease(**test)
-
-
