@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <style type="text/css">
+            th, td {
+                padding-right: 30px;
+            }
+        </style>
         <script type="application/javascript">
                 function submit() {
                     const ip = document.getElementById("ipfield").value;
@@ -10,5 +15,29 @@
     </head>
     <body>
         IP address: <input id="ipfield" value="{{ ip if ip else '' }}"> <button type="button" onclick="submit()">Lookup</button>
+
+        {% if history %}
+            <h2>IP history</h2>
+            <table>
+                <tr>
+                    <th>IP</th>
+                    <th>First seen</th>
+                    <th>Last renew</th>
+                    <th>Switch</th>
+                    <th>Port</th>
+                    <th>MAC</th>
+                </tr>
+                {% for row in history %}
+                <tr>
+                    <td>{{ row.ip }}</td>
+                    <td>{{ row.first_seen | format_date }}</td>
+                    <td>{{ row.last_seen | format_date }}</td>
+                    <td>{{ row.sw }}</td>
+                    <td>{{ row.port }}</td>
+                    <td>{{ row.mac }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
     </body>
 </html>
