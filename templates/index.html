@@ -21,9 +21,11 @@
     </head>
     <body>
         <label for="ipfield">IP address:</label>
-        <input id="ipfield" onkeyup="keyup(event)" value="{{ ip | default('') }}"> 
+        <input id="ipfield" onkeyup="keyup(event)" value="{{ ip or '' }}"> 
         <button type="button" onclick="submit()">Lookup</button>
-
+        {% if history is defined and not history %}
+            <h2>No results found</h2>
+        {% endif %}
         {% if history %}
             <h2>IP history</h2>
             <table>
