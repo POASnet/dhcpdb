@@ -48,6 +48,10 @@
                 </tr>
                 {% endfor %}
             </table>
+
+            {% if history | length == limit %}
+            Limit of {{ limit }} entries reached
+            {% endif %}
         {% endif %}
     </body>
 </html>

@@ -65,13 +65,15 @@ def register_lease(ip, mac, sw, port, time):
         insert_new_lease(identity, time)
     db.commit()
 
-def get_history(ip):
+def get_history(ip, limit=None):
     query = """
     SELECT * FROM leases
     WHERE ip=%(ip)s
     ORDER BY last_seen DESC
     """
-    cur.execute(query, {"ip": ip})
+    if limit:
+        query += f" LIMIT %(limit)s"
+    cur.execute(query, {"ip": ip, "limit": limit})
     return cur.fetchall()
 
 
