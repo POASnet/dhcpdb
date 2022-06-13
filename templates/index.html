@@ -11,10 +11,18 @@
                     const ip = document.getElementById("ipfield").value;
                     window.location.href = "/" + ip;
                 }
+
+                function keyup(event) {
+                    if (event.key === "Enter") {
+                        submit()
+                    }
+                }
         </script>
     </head>
     <body>
-        IP address: <input id="ipfield" value="{{ ip if ip else '' }}"> <button type="button" onclick="submit()">Lookup</button>
+        <label for="ipfield">IP address:</label>
+        <input id="ipfield" onkeyup="keyup(event)" value="{{ ip | default('') }}"> 
+        <button type="button" onclick="submit()">Lookup</button>
 
         {% if history %}
             <h2>IP history</h2>
