@@ -10,9 +10,10 @@ def format_date(timestamp):
     return datetime.datetime.fromtimestamp(timestamp).isoformat(' ')
 
 @app.route('/register', methods=['POST'])
-def register_lease():
-    r = request.json
-    db.register_lease(**r)
+def register_leases():
+    ls = request.json
+    for l in ls:
+        db.register_lease(**l)
     return ""
 
 @app.route('/')
