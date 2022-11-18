@@ -50,6 +50,9 @@ def register_lease(ip, mac, sw, port, time):
     old = find_last(ip)
 
     if old:
+        if time < old['last_seen']:
+            print(f'Ignoring IP: {ip} - newer timestamp exists')
+            return
         old_id = {
             'ip': old['ip'], 'mac': old['mac'],
             'port': old['port'], 'sw': old['sw'],
