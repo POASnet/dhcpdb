@@ -82,7 +82,7 @@ def register_client(mac, sw, port, time_seen):
     old = find_mac_last(mac)
 
     if old:
-        if time_seen < old['time_seen']:
+        if time_seen < old['last_seen']:
             print(f'Ignoring MAC: {mac} - newer timestamp exists')
             return
         old_id = extract(old, ['mac', 'sw', 'port'])
