@@ -25,6 +25,7 @@ def url_encode(s):
 def register():
     events = request.json
     for event in events:
+        print(event)
         if 'ip' in event.keys() and 'sw' in event.keys():
             db.register_compat(**event)
         elif 'sw' in event.keys():
