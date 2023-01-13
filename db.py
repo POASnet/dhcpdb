@@ -136,6 +136,11 @@ def get_ip_history(ip, limit=None):
         return None
 
     for lease in leases:
+        if lease['lease_time']:
+            lease['valid_until'] = lease['last_seen'] + int(lease['lease_time'])
+        else:
+            lease['valid_until'] = None
+
         cur.execute("""
             SELECT * FROM clients
             WHERE mac=%(mac)s

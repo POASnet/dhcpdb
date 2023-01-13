@@ -38,6 +38,7 @@
                     <th>Switch</th>
                     <th>Port</th>
                     <th>MAC</th>
+                    <th>Valid until</th>
                 </tr>
                 {% for row in history %}
                 <tr>
@@ -47,6 +48,7 @@
                     <td>{{ row.sw }}</td>
                     <td>{{ row.port }}</td>
                     <td>{{ row.mac }}</td>
+                    <td>{% if row.valid_until %}{{ row.valid_until | format_date }}{% endif %}</td>
                 </tr>
                 {% endfor %}
             </table>
