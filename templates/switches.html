@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+    <table>
+        <tr>
+            <th>Hostname</th>
+            <th>Location</th>
+        </tr>
+        {% for switch in switches %}
+        <tr>
+            <td><a href="/switches/{{ switch['hostname'] }}">{{ switch['hostname'] }}</a></td>
+            <td>{{ switch['location'] }}</td>
+        </tr>
+        {%  endfor %}
+    </table>
+</body>
+</html>

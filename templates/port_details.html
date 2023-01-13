@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style type="text/css">
+        th, td {
+            padding-right: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h2>{{ hostname }} {{ port }}</h2>
+    <table>
+        <tr>
+            <th>MAC</th>
+            <th>First seen</th>
+            <th>Last renew</th>
+        </tr>
+        {% if history is defined and not history %}
+            <h2>No results found</h2>
+        {% endif %}
+        {% if history %}
+            {% for row in history %}
+                <tr>
+                    <td>{{ row.mac }}</td>
+                    <td>{{ row.first_seen | format_date }}</td>
+                    <td>{{ row.last_seen | format_date }}</td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+    </table>
+</body>
+</html>

@@ -1,17 +1,24 @@
 import datetime
 from flask import Flask, request, render_template
+from urllib import parse
 import db
+import librenms
 
 app = Flask(__name__)
 DEFAULT_LIMIT = 20
 
 # Test DB connection early
-db.get_history("0.0.0.0", 1)
+db.get_ip_history("0.0.0.0", 1)
 
 
 @app.template_filter()
 def format_date(timestamp):
     return datetime.datetime.fromtimestamp(timestamp).isoformat(' ')
+
+
+@app.template_filter()
+def url_encode(s):
+    return parse.quote_plus(s)
 
 
 @app.route('/register', methods=['post'])
@@ -34,10 +41,28 @@ def register():
 @app.route('/<ip>')
 def index(ip=None):
     if ip:
-        history = db.get_history(ip, limit=DEFAULT_LIMIT)
+        history = db.get_ip_history(ip, limit=DEFAULT_LIMIT)
     else:
         history = None
     return render_template('index.html', ip=ip, history=history, limit=DEFAULT_LIMIT)
+
+
+@app.route('/switches')
+def switches():
+    switches = librenms.get_switches()
+    return render_template('switches.html', switches=switches)
+
+
+@app.route('/switches/<hostname>')
+def ports(hostname):
+    ports = librenms.get_ports(hostname)
+    return render_template('ports.html', hostname=hostname, ports=ports)
+
+
+@app.route('/switches/<hostname>/<path:port>')
+def port_details(hostname, port):
+    history = db.get_port_history(hostname, port)
+    return render_template('port_details.html', hostname=hostname, port=port, history=history)
 
 
 if __name__ == '__main__':

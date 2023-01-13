@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+    <h2>{{ hostname }}</h2>
+    {% for port in ports %}
+        <a href="/switches/{{ hostname }}/{{ port['ifName'] | url_encode }}">
+            {% if port['ifName'] not in port['ifAlias' ]%}{{ port['ifName'] }} {% endif %}{{ port['ifAlias'] }}</a><br>
+    {% endfor %}
+</body>
+</html>

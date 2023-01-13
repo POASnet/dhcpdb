@@ -7,7 +7,7 @@
             }
         </style>
         <script type="application/javascript">
-                function submit() {
+                function ip_search() {
                     const ip = document.getElementById("ipfield").value;
                     window.location.href = "/" + ip;
                 }
@@ -21,8 +21,10 @@
     </head>
     <body>
         <label for="ipfield">IP address:</label>
-        <input id="ipfield" onkeyup="keyup(event)" value="{{ ip or '' }}"> 
-        <button type="button" onclick="submit()">Lookup</button>
+        <input id="ipfield" onkeyup="keyup(event)" value="{{ ip or '' }}">
+        <button type="button" onclick="ip_search()">Lookup</button>
+        <br>
+        Ports: <a href="/switches">Browse</a>
         {% if history is defined and not history %}
             <h2>No results found</h2>
         {% endif %}

@@ -119,7 +119,7 @@ def register_lease(ip, mac, time_seen, lease_time):
     db.commit()
 
 
-def get_history(ip, limit=None):
+def get_ip_history(ip, limit=None):
     result = []
 
     query = """
@@ -147,4 +147,25 @@ def get_history(ip, limit=None):
     return result
 
 
+def get_port_history(sw, port, limit=None):
+    result = []
 
+    query = """
+    SELECT * FROM clients
+    WHERE sw=%(sw)s AND port=%(port)s
+    ORDER BY last_seen DESC
+    """
+    if limit:
+        query += f" LIMIT %(limit)s"
+    cur.execute(query, {"sw": sw.split('.')[0], "port": port, "limit": limit})
+    clients = cur.fetchall()
+    print(query, sw.split('.')[0], port)
+
+    if not clients:
+        return None
+
+    for client in clients:
+        # TODO: Get IP information
+        result.append(client)
+
+    return result
