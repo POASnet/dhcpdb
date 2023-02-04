@@ -47,7 +47,7 @@
                     <td>{{ row.last_seen | format_date }}</td>
                     <td>{{ row.sw }}</td>
                     <td>{{ row.port }}</td>
-                    <td>{{ row.mac }}</td>
+                    <td><span title="{{ row.mac | mac_search }}">{{ row.mac }}</span></td>
                     <td>{% if row.valid_until %}{{ row.valid_until | format_date }}{% endif %}</td>
                 </tr>
                 {% endfor %}

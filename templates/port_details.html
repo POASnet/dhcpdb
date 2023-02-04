@@ -21,7 +21,7 @@
         {% if history %}
             {% for row in history %}
                 <tr>
-                    <td>{{ row.mac }}</td>
+                    <td><span title="{{ row.mac | mac_search }}">{{ row.mac }}</span></td>
                     <td>{{ row.first_seen | format_date }}</td>
                     <td>{{ row.last_seen | format_date }}</td>
                 </tr>

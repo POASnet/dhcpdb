@@ -3,6 +3,7 @@ from flask import Flask, request, render_template
 from urllib import parse
 import db
 import librenms
+from mac import *
 
 app = Flask(__name__)
 DEFAULT_LIMIT = 20
@@ -10,6 +11,7 @@ DEFAULT_LIMIT = 20
 # Test DB connection early
 db.get_ip_history("0.0.0.0", 1)
 
+macdb = MACdb()
 
 @app.template_filter()
 def format_date(timestamp):
@@ -20,6 +22,14 @@ def format_date(timestamp):
 def url_encode(s):
     return parse.quote_plus(s)
 
+@app.template_filter()
+def mac_search(mac):
+    try:
+        return macdb.search(mac)
+    except MACNotFound:
+        return 'UNKNOWN'
+    except MACInvalid:
+        return 'LOOKUP ERROR'
 
 @app.route('/register', methods=['post'])
 def register():
