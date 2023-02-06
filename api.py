@@ -31,6 +31,10 @@ def mac_search(mac):
     except MACInvalid:
         return 'LOOKUP ERROR'
 
+@app.template_filter()
+def loc2addr(loc):
+    return loc.split(',', 1)[0]
+
 @app.route('/register', methods=['post'])
 def register():
     events = request.json
@@ -66,14 +70,17 @@ def switches():
 
 @app.route('/switches/<hostname>')
 def ports(hostname):
+    location = librenms.get_location(hostname)
     ports = librenms.get_ports(hostname)
-    return render_template('ports.html', hostname=hostname, ports=ports)
+    return render_template('ports.html', hostname=hostname, location=location, ports=ports)
 
 
 @app.route('/switches/<hostname>/<path:port>')
 def port_details(hostname, port):
+    location = librenms.get_location(hostname)
+    ifalias = librenms.get_ifalias(hostname, port)
     history = db.get_port_history(hostname, port)
-    return render_template('port_details.html', hostname=hostname, port=port, history=history)
+    return render_template('port_details.html', hostname=hostname, port=port, location=location, ifalias=ifalias, history=history)
 
 
 if __name__ == '__main__':
