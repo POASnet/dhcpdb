@@ -13,6 +13,7 @@ db.get_ip_history("0.0.0.0", 1)
 
 macdb = MACdb()
 
+
 @app.template_filter()
 def format_date(timestamp):
     return datetime.datetime.fromtimestamp(timestamp).isoformat(' ')
@@ -21,6 +22,7 @@ def format_date(timestamp):
 @app.template_filter()
 def url_encode(s):
     return parse.quote_plus(s)
+
 
 @app.template_filter()
 def mac_search(mac):
@@ -31,9 +33,11 @@ def mac_search(mac):
     except MACInvalid:
         return 'LOOKUP ERROR'
 
+
 @app.template_filter()
 def loc2addr(loc):
     return loc.split(',', 1)[0]
+
 
 @app.route('/register', methods=['post'])
 def register():
