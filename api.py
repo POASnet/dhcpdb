@@ -44,12 +44,10 @@ def register():
     events = request.json
     for event in events:
         print(event)
-        if 'sw' in event.keys():
-            db.register_client(**event)
-        elif 'ip' in event.keys():
+        if event['stage'] == 'ack':
             db.register_lease(**event)
         else:
-            return "Bad event: " + str(event), 400
+            db.register_client(**event)
 
     return ""
 
