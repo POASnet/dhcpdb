@@ -37,10 +37,9 @@ def update_client(client_id, last_seen):
 
 def insert_new_lease(identity, time, lease_time):
     query_insert_new = """
-        INSERT INTO leases(first_seen, last_seen, client, ip, mac)
-        VALUES (%(first_seen)s, %(last_seen)s, %(client)s, %(ip)s, %(mac)s)
+        INSERT INTO leases(first_seen, last_seen, lease_time, client, ip, mac)
+        VALUES (%(first_seen)s, %(last_seen)s, %(lease_time)s, %(client)s, %(ip)s, %(mac)s)
     """
-    print(identity | {"first_seen": time, "last_seen": time, "lease_time": lease_time, "mac": '00:00:00:00:00:00'})
     cur.execute(
         query_insert_new,
         identity | {"first_seen": time, "last_seen": time, "lease_time": lease_time, "mac": '00:00:00:00:00:00'}
