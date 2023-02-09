@@ -40,9 +40,7 @@ def register():
     events = request.json
     for event in events:
         print(event)
-        if 'ip' in event.keys() and 'sw' in event.keys():
-            db.register_compat(**event)
-        elif 'sw' in event.keys():
+        if 'sw' in event.keys():
             db.register_client(**event)
         elif 'ip' in event.keys():
             db.register_lease(**event)

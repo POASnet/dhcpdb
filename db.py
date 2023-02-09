@@ -72,11 +72,6 @@ def find_ip_last(ip):
     return find_last(table='leases', key='ip', value=ip)
 
 
-def register_compat(ip, mac, sw, port, time, **kwargs):
-    register_client(mac, sw, port, time)
-    register_lease(ip, mac, time, 0)
-
-
 def register_client(mac, sw, port, time_seen, **kwargs):
     identity = {"mac": mac, "sw": sw, "port": port}
     old = find_mac_last(mac)
