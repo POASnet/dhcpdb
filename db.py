@@ -127,36 +127,20 @@ def register_lease(ip, mac, time_seen, lease_time, sw, port, **kwargs):
 
 
 def get_ip_history(ip, limit=None):
-    result = []
-
     query = """
-    SELECT * FROM leases
+    SELECT 
+        leases.first_seen, leases.last_seen, leases.lease_time, leases.ip, 
+        clients.mac, clients.sw, clients.port 
+    FROM leases
+    JOIN clients ON leases.client = clients.id
     WHERE ip=%(ip)s
     ORDER BY last_seen DESC
     """
     if limit:
         query += f" LIMIT %(limit)s"
+
     cur.execute(query, {"ip": ip, "limit": limit})
-    leases = cur.fetchall()
-
-    if not leases:
-        return None
-
-    for lease in leases:
-        if lease['lease_time']:
-            lease['valid_until'] = lease['last_seen'] + int(lease['lease_time'])
-        else:
-            lease['valid_until'] = None
-
-        cur.execute("""
-            SELECT * FROM clients
-            WHERE mac=%(mac)s
-            ORDER BY last_seen DESC
-            LIMIT 1
-        """, {"mac": lease['mac']})
-        result.append((cur.fetchone() or {}) | lease)
-
-    return result
+    return cur.fetchall()
 
 
 def get_port_history(sw, port, limit=None):
