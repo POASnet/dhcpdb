@@ -16,7 +16,10 @@ macdb = MACdb()
 
 @app.template_filter()
 def format_date(timestamp):
-    return datetime.datetime.fromtimestamp(timestamp).isoformat(' ')
+    if timestamp:
+        return datetime.datetime.fromtimestamp(timestamp).isoformat(' ')
+    else:
+        return ''
 
 
 @app.template_filter()
