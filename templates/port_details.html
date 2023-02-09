@@ -26,7 +26,7 @@
                     <td><span title="{{ row.mac | mac_search }}">{{ row.mac }}</span></td>
                     <td>{{ row.first_seen | format_date }}</td>
                     <td>{{ row.last_seen | format_date }}</td>
-                    <td>{{ row.ip }}</td>
+                    <td>{% if row.ip %}{{ row.ip }}{% endif %}</td>
                     <td>{{ row.valid_until | format_date}}</td>
                 </tr>
             {% endfor %}
