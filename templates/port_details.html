@@ -14,6 +14,8 @@
             <th>MAC</th>
             <th>First seen</th>
             <th>Last seen</th>
+            <th>Lease</th>
+            <th>Valid until</th>
         </tr>
         {% if history is defined and not history %}
             <h2>No results found</h2>
@@ -24,6 +26,8 @@
                     <td><span title="{{ row.mac | mac_search }}">{{ row.mac }}</span></td>
                     <td>{{ row.first_seen | format_date }}</td>
                     <td>{{ row.last_seen | format_date }}</td>
+                    <td>{{ row.ip }}</td>
+                    <td>{{ row.valid_until | format_date}}</td>
                 </tr>
             {% endfor %}
         {% endif %}
