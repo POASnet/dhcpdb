@@ -22,7 +22,8 @@ def insert_new_client(identity, time) -> int:
         VALUES (%(first_seen)s, %(last_seen)s, %(mac)s, %(sw)s, %(port)s)
         RETURNING id
     """
-    return cur.execute(query_insert_new, identity | {"first_seen": time, "last_seen": time}).fetchone()[0]
+    cur.execute(query_insert_new, identity | {"first_seen": time, "last_seen": time})
+    return cur.fetchone()[0]
 
 
 def update_client(client_id, last_seen):
@@ -39,6 +40,7 @@ def insert_new_lease(identity, time, lease_time):
         INSERT INTO leases(first_seen, last_seen, client, ip, mac)
         VALUES (%(first_seen)s, %(last_seen)s, %(client)s, %(ip)s, %(mac)s)
     """
+    print(identity | {"first_seen": time, "last_seen": time, "lease_time": lease_time, "mac": '00:00:00:00:00:00'})
     cur.execute(
         query_insert_new,
         identity | {"first_seen": time, "last_seen": time, "lease_time": lease_time, "mac": '00:00:00:00:00:00'}
@@ -97,12 +99,13 @@ def register_client(mac, sw, port, time_seen, **kwargs) -> Optional[dict]:
         client_id = insert_new_client(identity, time_seen)
 
     db.commit()
-    return cur.execute("SELECT * FROM clients WHERE id=%(id)s", {"id": client_id}).fetchone()
+    cur.execute("SELECT * FROM clients WHERE id=%(id)s", {"id": client_id})
+    return cur.fetchone()
 
 
 def register_lease(ip, mac, time_seen, lease_time, sw, port, **kwargs):
     client = register_client(mac, sw, port, time_seen)
-    identity = {"client": client, "ip": ip}
+    identity = {"client": client['id'], "ip": ip}
     old = find_ip_last(ip)
 
     if old:
