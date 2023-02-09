@@ -9,8 +9,11 @@ def get_version(cur):
 def init(db, cur):
     init_v1(cur)
 
-    if get_version(cur) < 2:
+    if get_version(cur) == 1:
         upgrade_v2(cur)
+
+    if get_version(cur) == 2:
+        upgrade_v3(cur)
 
     db.commit()
 
@@ -87,3 +90,20 @@ def upgrade_v2(cur):
     cur.execute("DROP TABLE leases_old")
     cur.execute("UPDATE db_version SET version=2")
 
+
+def upgrade_v3(cur):
+    ##########################################################
+    # Schema V3 to bind clients and assigned leases together #
+    ##########################################################
+    print("DB: Upgrading schema to V3")
+    cur.execute("ALTER TABLE clients ADD COLUMN id SERIAL PRIMARY KEY")
+    cur.execute("""
+        INSERT INTO clients(first_seen, last_seen, mac, sw, port)
+        VALUES(0, 0, '00:00:00:00:00:00', 'legacy-data', 'legacy-data')
+    """)
+
+    cur.execute("ALTER TABLE leases ADD COLUMN client INTEGER REFERENCES clients (id)")
+    cur.execute("UPDATE leases SET client=(SELECT id FROM clients WHERE port = 'legacy-data')")
+    cur.execute("ALTER TABLE leases ALTER COLUMN client SET NOT NULL")
+
+    cur.execute("UPDATE db_version SET version=3")

@@ -1,5 +1,6 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from typing import Optional
 
 import db_schema
 
@@ -15,31 +16,33 @@ def extract(object, keys):
     return result
 
 
-def insert_new_client(identity, time):
+def insert_new_client(identity, time) -> int:
     query_insert_new = """
         INSERT INTO clients(first_seen, last_seen, mac, sw, port)
         VALUES (%(first_seen)s, %(last_seen)s, %(mac)s, %(sw)s, %(port)s)
+        RETURNING id
     """
-    cur.execute(query_insert_new, identity | {"first_seen": time, "last_seen": time})
+    return cur.execute(query_insert_new, identity | {"first_seen": time, "last_seen": time}).fetchone()[0]
 
 
-def update_client(identity, first_seen, last_seen):
+def update_client(client_id, last_seen):
     query_update = """
-    UPDATE clients
-    SET last_seen = %(last_seen)s
-    WHERE 
-        mac = %(mac)s AND sw = %(sw)s AND port = %(port)s AND
-        first_seen = %(first_seen)s
+        UPDATE clients
+        SET last_seen = %(last_seen)s
+        WHERE id = %(id)s
     """
-    cur.execute(query_update, identity | {"first_seen": first_seen, "last_seen": last_seen})
+    cur.execute(query_update, {"id": client_id, "last_seen": last_seen})
 
 
 def insert_new_lease(identity, time, lease_time):
     query_insert_new = """
-        INSERT INTO leases(first_seen, last_seen, ip, mac)
-        VALUES (%(first_seen)s, %(last_seen)s, %(ip)s, %(mac)s)
+        INSERT INTO leases(first_seen, last_seen, client, ip, mac)
+        VALUES (%(first_seen)s, %(last_seen)s, %(client)s, %(ip)s, %(mac)s)
     """
-    cur.execute(query_insert_new, identity | {"first_seen": time, "last_seen": time, "lease_time": lease_time})
+    cur.execute(
+        query_insert_new,
+        identity | {"first_seen": time, "last_seen": time, "lease_time": lease_time, "mac": '00:00:00:00:00:00'}
+    )
 
 
 def update_lease(identity, first_seen, last_seen, lease_time):
@@ -47,7 +50,7 @@ def update_lease(identity, first_seen, last_seen, lease_time):
     UPDATE leases
     SET last_seen = %(last_seen)s, lease_time = %(lease_time)s
     WHERE 
-        ip = %(ip)s AND mac = %(mac)s AND
+        ip = %(ip)s AND client = %(client)s AND
         first_seen = %(first_seen)s
     """
     cur.execute(query_update, identity | {"first_seen": first_seen, "last_seen": last_seen, "lease_time": lease_time})
@@ -64,47 +67,53 @@ def find_last(table, key, value):
     return cur.fetchone()
 
 
-def find_mac_last(mac):
+def find_mac_last(mac: str) -> dict:
     return find_last(table='clients', key='mac', value=mac)
 
 
-def find_ip_last(ip):
+def find_ip_last(ip: str) -> dict:
     return find_last(table='leases', key='ip', value=ip)
 
 
-def register_client(mac, sw, port, time_seen, **kwargs):
+def register_client(mac, sw, port, time_seen, **kwargs) -> Optional[dict]:
     identity = {"mac": mac, "sw": sw, "port": port}
     old = find_mac_last(mac)
 
     if old:
-        if time_seen < old['last_seen']:
-            print(f'Ignoring MAC: {mac} - newer timestamp exists')
-            return
-        old_id = extract(old, ['mac', 'sw', 'port'])
-        if identity == old_id:
-            print(f'Refreshing existing client: {mac}')
-            update_client(identity, old['first_seen'], time_seen)
+        old_identity = extract(old, ['mac', 'sw', 'port'])
+        if identity == old_identity:
+            if time_seen < old['last_seen']:
+                print(f'Ignoring MAC: {mac} - newer timestamp exists')
+                return old
+            else:
+                print(f'Refreshing existing client: {mac}')
+                client_id = old['id']
+                update_client(client_id, time_seen)
         else:
             print(f'Moved client: {mac}')
-            insert_new_client(identity, time_seen)
+            client_id = insert_new_client(identity, time_seen)
     else:
         print(f'New client: {mac}')
-        insert_new_client(identity, time_seen)
+        client_id = insert_new_client(identity, time_seen)
+
     db.commit()
+    return cur.execute("SELECT * FROM clients WHERE id=%(id)s", {"id": client_id}).fetchone()
 
 
-def register_lease(ip, mac, time_seen, lease_time, **kwargs):
-    identity = {"ip": ip, "mac": mac}
+def register_lease(ip, mac, time_seen, lease_time, sw, port, **kwargs):
+    client = register_client(mac, sw, port, time_seen)
+    identity = {"client": client, "ip": ip}
     old = find_ip_last(ip)
 
     if old:
-        if time_seen < old['last_seen']:
-            print(f'Ignoring IP: {ip} - newer timestamp exists')
-            return
-        old_id = extract(old, ['ip', 'mac'])
+        old_id = extract(old, ['ip', 'client'])
         if identity == old_id:
-            print(f'Renewed IP: {ip}')
-            update_lease(identity, old['first_seen'], time_seen, lease_time)
+            if time_seen < old['last_seen']:
+                print(f'Ignoring IP: {ip} - newer timestamp exists')
+                return
+            else:
+                print(f'Renewed IP: {ip}')
+                update_lease(identity, old['first_seen'], time_seen, lease_time)
         else:
             print(f'Moved IP: {ip}')
             insert_new_lease(identity, time_seen, lease_time)

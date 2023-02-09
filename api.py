@@ -44,7 +44,7 @@ def register():
     events = request.json
     for event in events:
         print(event)
-        if event['stage'] == 'ack':
+        if event['stage'] == 'commit':
             db.register_lease(**event)
         else:
             db.register_client(**event)
