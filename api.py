@@ -23,6 +23,14 @@ def format_date(timestamp):
 
 
 @app.template_filter()
+def is_current(timestamp):
+    if timestamp:
+        return timestamp >= datetime.datetime.utcnow().timestamp()
+    else:
+        return False
+
+
+@app.template_filter()
 def url_encode(s):
     return parse.quote_plus(s)
 
