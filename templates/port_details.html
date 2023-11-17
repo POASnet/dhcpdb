@@ -12,9 +12,10 @@
     <table>
         <tr>
             <th>MAC</th>
-            <th>First seen</th>
-            <th>Last seen</th>
+            <th>MAC First seen</th>
+            <th>MAC Last seen</th>
             <th>Lease</th>
+            <th>Valid from</th>
             <th>Valid until</th>
         </tr>
         {% if history is defined and not history %}
@@ -24,9 +25,10 @@
             {% for row in history %}
                 <tr>
                     <td><span title="{{ row.mac | mac_search }}">{{ row.mac }}</span></td>
-                    <td>{{ row.first_seen | format_date }}</td>
-                    <td>{{ row.last_seen | format_date }}</td>
+                    <td>{{ row.mac_first_seen | format_date }}</td>
+                    <td>{{ row.mac_last_seen | format_date }}</td>
                     <td>{% if row.ip %}{{ row.ip }}{% endif %}</td>
+                    <td>{{ row.lease_first_seen | format_date}}</td>
                     <td>{{ row.valid_until | format_date}}</td>
                 </tr>
             {% endfor %}

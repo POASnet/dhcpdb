@@ -146,12 +146,19 @@ def get_ip_history(ip, limit=None):
 def get_port_history(sw, port, limit=None):
     query = """
     SELECT 
-        clients.first_seen, clients.last_seen, clients.mac, clients.sw, clients.port, 
-        leases.ip, leases.lease_time, leases.last_seen + leases.lease_time AS valid_until
+        clients.mac, clients.sw, clients.port, 
+        clients.first_seen AS mac_first_seen, clients.last_seen AS mac_last_seen, 
+        leases.ip, leases.lease_time,
+        leases.last_seen + leases.lease_time AS valid_until,
+        leases.first_seen AS lease_first_seen,
+        CASE 
+            WHEN leases.last_seen IS NOT NULL THEN leases.last_seen
+            WHEN leases.last_seen IS NULL     THEN clients.last_seen
+        END case_last_seen
     FROM clients 
     LEFT JOIN leases ON leases.client = clients.id 
     WHERE sw=%(sw)s AND port=%(port)s
-    ORDER BY last_seen DESC
+    ORDER BY case_last_seen DESC
     """
     if limit:
         query += f" LIMIT %(limit)s"
