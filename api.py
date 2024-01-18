@@ -57,6 +57,8 @@ def register():
         print(event)
         if event['stage'] == 'commit':
             db.register_lease(**event)
+        elif event['stage'] == 'expiry':
+            pass # TODO'
         else:
             db.register_client(**event)
 
