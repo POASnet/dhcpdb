@@ -20,7 +20,7 @@ def get_switches() -> list[dict]:
 
 def get_ports(hostname: str) -> list[dict]:
     ports = get(f'/api/v0/devices/{hostname}/ports?columns=ifName,ifAlias')['ports']
-    ports = filter(lambda port: re.match('^(gei|Gigabit).*', port['ifName']), ports)
+    ports = filter(lambda port: re.match('^(gei|Gigabit|GE).*', port['ifName']), ports)
     return ports
 
 def get_location(hostname: str) -> str:
